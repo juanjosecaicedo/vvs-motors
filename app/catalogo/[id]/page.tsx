@@ -10,102 +10,47 @@ import {
   Fuel,
   Settings,
   Palette,
-  CheckCircle2,
   Phone,
   Mail,
   MessageSquare,
 } from "lucide-react"
+import { getSupabaseServerClient } from "@/lib/supabase-server"
 
-// Sample data - will be replaced with database query
-const carsData = [
-  {
-    id: "1",
-    brand: "BMW",
-    model: "Serie 3",
-    year: 2023,
-    price: 45000000,
-    image: "https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    transmission: "Automático",
-    fuel_type: "Gasolina",
-    engine: "2.0L Turbo",
-    mileage: 5000,
-    color: "Negro",
-    status: "available",
-    description:
-      "Vehículo premium con tecnología de última generación y máximo confort. El BMW Serie 3 2023 combina elegancia deportiva con rendimiento excepcional. Equipado con el motor turbo más reciente de BMW, ofrece una experiencia de conducción inigualable.",
-    features: [
-      "Sistema de navegación GPS",
-      "Asientos de cuero premium",
-      "Techo panorámico",
-      "Sistema de sonido Harman Kardon",
-      "Control de crucero adaptativo",
-      "Cámara 360°",
-      "Faros LED adaptativos",
-      "Apple CarPlay y Android Auto",
-    ],
-  },
-  {
-    id: "2",
-    brand: "Audi",
-    model: "A4",
-    year: 2022,
-    price: 35000000,
-    image: "https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    transmission: "Automático",
-    fuel_type: "Gasolina",
-    engine: "1.8L TFSI",
-    mileage: 12000,
-    color: "Blanco",
-    status: "available",
-    description:
-      "Elegancia y rendimiento en un solo vehículo. Perfecto para la ciudad. El Audi A4 ofrece tecnología avanzada y confort superior en cada viaje.",
-    features: [
-      "Virtual Cockpit",
-      "Asientos deportivos",
-      "Sistema MMI Touch",
-      "Control de clima automático",
-      "Sensores de estacionamiento",
-      "Bluetooth y USB",
-      "Llantas de aleación 18",
-      "Asistente de cambio de carril",
-    ],
-  },
-  {
-    id: "3",
-    brand: "Mercedes-Benz",
-    model: "C-Class",
-    year: 2023,
-    price: 55000000,
-    image:
-      "https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-    transmission: "Automático",
-    fuel_type: "Gasolina",
-    engine: "2.5L V6",
-    mileage: 3000,
-    color: "Plateado",
-    status: "available",
-    description:
-      "Lujo y sofisticación alemana con la mejor tecnología incorporada. Mercedes-Benz C-Class redefine el concepto de lujo deportivo con su diseño elegante y prestaciones excepcionales.",
-    features: [
-      "Sistema MBUX",
-      "Asientos con masaje",
-      "Suspensión neumática",
-      "Sistema de sonido Burmester",
-      "Head-up Display",
-      "Paquete AMG",
-      "Iluminación ambiental 64 colores",
-      "Asistente de estacionamiento activo",
-    ],
-  },
-]
+// Define interface matching the database
+interface Car {
+  id: string
+  brand: string
+  model: string
+  year: number
+  price: number
+  transmission: string
+  fuel_type: string
+  engine: string
+  description: string | null
+  image_url: string | null
+  mileage: number
+  color: string | null
+  status: "available" | "sold" | "reserved"
+  featured: boolean
+}
 
 export default async function CarDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const car = carsData.find((c) => c.id === id)
+  const supabase = await getSupabaseServerClient()
 
-  if (!car) {
+  const { data: car, error } = await supabase
+    .from("cars")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error || !car) {
+    console.error("Error fetching car:", error)
     notFound()
   }
+
+  // Cast car to typed interface (Supabase types might be loosely inferenced)
+  const carData = car as Car
 
   return (
     <div className="min-h-screen bg-background">
@@ -125,8 +70,12 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
           {/* Image Section */}
           <div>
             <div className="relative rounded-2xl overflow-hidden shadow-2xl mb-4">
-              <img src={car.image || "/placeholder.svg"} alt={`${car.brand} ${car.model}`} className="w-full h-auto" />
-              {car.status === "available" && (
+              <img
+                src={carData.image_url || "/placeholder.svg"}
+                alt={`${carData.brand} ${carData.model}`}
+                className="w-full h-auto"
+              />
+              {carData.status === "available" && (
                 <Badge className="absolute top-6 left-6 bg-green-500 hover:bg-green-600 text-white px-4 py-2 text-base">
                   Disponible
                 </Badge>
@@ -137,10 +86,10 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
           {/* Info Section */}
           <div>
             <h1 className="text-4xl font-bold mb-2">
-              {car.brand} {car.model}
+              {carData.brand} {carData.model}
             </h1>
             <p className="text-3xl font-bold text-transparent bg-gradient-to-r from-pink-500 to-cyan-500 bg-clip-text mb-6">
-              ${car.price.toLocaleString("es-CO")}
+              ${carData.price.toLocaleString("es-CO")}
             </p>
 
             {/* Specs Grid */}
@@ -150,7 +99,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                   <Calendar className="h-8 w-8 text-cyan-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Año</p>
-                    <p className="font-semibold">{car.year}</p>
+                    <p className="font-semibold">{carData.year}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -160,7 +109,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                   <Gauge className="h-8 w-8 text-cyan-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Kilometraje</p>
-                    <p className="font-semibold">{car.mileage.toLocaleString()} km</p>
+                    <p className="font-semibold">{carData.mileage?.toLocaleString() || "N/A"} km</p>
                   </div>
                 </CardContent>
               </Card>
@@ -170,7 +119,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                   <Fuel className="h-8 w-8 text-cyan-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Combustible</p>
-                    <p className="font-semibold">{car.fuel_type}</p>
+                    <p className="font-semibold">{carData.fuel_type}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -180,7 +129,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                   <Settings className="h-8 w-8 text-cyan-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Transmisión</p>
-                    <p className="font-semibold">{car.transmission}</p>
+                    <p className="font-semibold">{carData.transmission}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -190,7 +139,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                   <Settings className="h-8 w-8 text-cyan-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Motor</p>
-                    <p className="font-semibold">{car.engine}</p>
+                    <p className="font-semibold">{carData.engine || "N/A"}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -200,7 +149,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
                   <Palette className="h-8 w-8 text-cyan-500" />
                   <div>
                     <p className="text-sm text-muted-foreground">Color</p>
-                    <p className="font-semibold">{car.color}</p>
+                    <p className="font-semibold">{carData.color || "N/A"}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -209,7 +158,9 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
             {/* Description */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-4">Descripción</h2>
-              <p className="text-muted-foreground leading-relaxed">{car.description}</p>
+              <p className="text-muted-foreground leading-relaxed">
+                {carData.description || "Sin descripción disponible."}
+              </p>
             </div>
 
             {/* Contact CTAs */}
@@ -231,20 +182,7 @@ export default async function CarDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        {/* Features Section */}
-        <div className="mt-12">
-          <h2 className="text-3xl font-bold mb-6">Características Destacadas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {car.features.map((feature, index) => (
-              <Card key={index}>
-                <CardContent className="p-4 flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0" />
-                  <span>{feature}</span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
+        {/* Note: 'Features' section removed as it's not present in the current database schema */}
 
         {/* Financing Section */}
         <div className="mt-12">

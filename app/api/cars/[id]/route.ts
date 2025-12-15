@@ -9,13 +9,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { data, error } = await supabase.from("cars").select("*").eq("id", id).single()
 
     if (error) {
-      console.error("[v0] Error fetching car:", error)
+      console.error("Error fetching car:", error)
       return NextResponse.json({ error: "Car not found" }, { status: 404 })
     }
 
     return NextResponse.json(data)
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

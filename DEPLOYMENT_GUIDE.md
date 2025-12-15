@@ -14,7 +14,7 @@ La aplicación VVS Motors está construida con Next.js 16 y consta de:
 
 Para que la aplicación funcione completamente, necesitas conectar una base de datos:
 
-1. Ve a la sección "Connect" en v0
+1. Ve a la sección "Connect" en vercel
 2. Selecciona **Supabase** o **Neon** como proveedor de base de datos
 3. Sigue las instrucciones para conectar tu base de datos
 4. Una vez conectada, ejecuta los scripts SQL ubicados en `/scripts`:

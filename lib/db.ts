@@ -66,7 +66,7 @@ export function getSupabaseBrowserClient() {
 export const db = {
   query: async (sql: string, params?: any[]) => {
     // This will be replaced with actual database connection
-    console.log("[v0] Database query:", sql, params)
+    console.log("Database query:", sql, params)
     return { rows: [], rowCount: 0 }
   },
 }

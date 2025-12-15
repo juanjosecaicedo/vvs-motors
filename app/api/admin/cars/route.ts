@@ -8,13 +8,13 @@ export async function GET() {
     const { data, error } = await supabase.from("cars").select("*").order("created_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] Error fetching cars:", error)
+      console.error("Error fetching cars:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const supabase = await getSupabaseServerClient()
     const body = await request.json()
 
-    console.log("[v0] Creating new car:", body)
+    console.log("Creating new car:", body)
 
     const { data, error } = await supabase
       .from("cars")
@@ -49,14 +49,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error("[v0] Error creating car:", error)
+      console.error("Error creating car:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log("[v0] Car created successfully:", data)
+    console.log("Car created successfully:", data)
     return NextResponse.json(data)
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

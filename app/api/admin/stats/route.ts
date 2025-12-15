@@ -33,7 +33,7 @@ export async function GET() {
       pendingMessages: pendingMessages || 0,
     })
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

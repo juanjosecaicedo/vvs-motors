@@ -2,65 +2,40 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight, Zap, Car, Percent } from "lucide-react"
+import { getSupabaseServerClient } from "@/lib/supabase-server"
 
-export default function HomePage() {
-  // Featured cars - will be fetched from database later
-  const featuredCars = [
-    {
-      id: "1",
-      brand: "BMW",
-      model: "Serie 3",
-      year: 2023,
-      price: 45000000,
-      image:
-        "https://images.unsplash.com/photo-1555215695-3004980ad54e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-      transmission: "Automático",
-      fuel: "2.0L Turbo",
-    },
-    {
-      id: "2",
-      brand: "Audi",
-      model: "A4",
-      year: 2022,
-      price: 35000000,
-      image:
-        "https://images.unsplash.com/photo-1549924231-f129b911e442?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-      transmission: "Automático",
-      fuel: "1.8L TFSI",
-    },
-    {
-      id: "3",
-      brand: "Mercedes-Benz",
-      model: "C-Class",
-      year: 2023,
-      price: 55000000,
-      image:
-        "https://images.unsplash.com/photo-1580273916550-e323be2ae537?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80",
-      transmission: "Automático",
-      fuel: "2.5L V6",
-    },
-  ]
+export default async function HomePage() {
+  const supabase = await getSupabaseServerClient()
 
-  const promotions = [
-    {
-      title: "Financiamiento 0%",
-      description: "Hasta 60 cuotas sin intereses en vehículos seleccionados",
-      value: "0% Interés",
-      icon: Percent,
-    },
-    {
-      title: "Descuento por Cambio",
-      description: "Entrega tu vehículo usado y obtén hasta 25% de descuento",
-      value: "25% OFF",
-      icon: Car,
-    },
-    {
-      title: "Oferta Flash",
-      description: "Descuento directo en efectivo por compras este mes",
-      value: "$500K",
-      icon: Zap,
-    },
-  ]
+  // Fetch Featured Cars
+  const { data: featuredCars } = await supabase
+    .from("cars")
+    .select("*")
+    .eq("featured", true)
+    .eq("status", "available")
+    .limit(3)
+
+  // Fetch Active Promotions
+  const { data: promotionsData } = await supabase
+    .from("promotions")
+    .select("*")
+    .eq("active", true)
+    .order("created_at", { ascending: false })
+    .limit(3)
+
+  const promotions = promotionsData?.map(promo => {
+    // Map specific unicode icons to Lucide components if needed, or fallback
+    // For now, we'll try to guess based on content or stick to generic, 
+    // but the design expects dynamic icons. 
+    // The current DB 'icon' is a string (emoji). The UI expects a component?
+    // The previous code had `const Icon = promo.icon` where promo.icon was a Component.
+    // We need to adapt the UI to render the string emoji OR map to a component.
+    // Let's adapt the UI to use the emoji string directly or a default icon.
+    return {
+      ...promo,
+      icon: promo.icon || "🎉"
+    }
+  }) || []
 
   return (
     <div className="min-h-screen">
@@ -112,18 +87,17 @@ export default function HomePage() {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-12 text-white">Promociones Especiales</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {promotions.map((promo, index) => {
-              const Icon = promo.icon
               return (
                 <Card
                   key={index}
                   className="bg-white/10 backdrop-blur-lg border-white/20 hover:bg-white/20 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
                 >
                   <CardContent className="p-8 text-center text-white">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400 to-cyan-600 mb-4">
-                      <Icon className="h-8 w-8 text-white" />
+                    <div className="text-6xl mb-4">
+                      {promo.icon}
                     </div>
                     <h3 className="text-2xl font-bold mb-3">{promo.title}</h3>
-                    <div className="text-4xl font-bold text-cyan-300 mb-4">{promo.value}</div>
+                    <div className="text-4xl font-bold text-cyan-300 mb-4">{promo.discount_value}</div>
                     <p className="text-gray-100 leading-relaxed">{promo.description}</p>
                   </CardContent>
                 </Card>
@@ -139,14 +113,14 @@ export default function HomePage() {
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">Vehículos Destacados</h2>
           <p className="text-center text-muted-foreground mb-12 text-lg">Descubre nuestra selección premium</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {featuredCars.map((car) => (
+            {featuredCars?.map((car) => (
               <Card
                 key={car.id}
                 className="overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 group"
               >
                 <div className="relative h-64 overflow-hidden">
                   <img
-                    src={car.image || "/placeholder.svg"}
+                    src={car.image_url || "/placeholder.svg"}
                     alt={`${car.brand} ${car.model}`}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
@@ -161,7 +135,7 @@ export default function HomePage() {
                   <div className="flex gap-4 text-sm text-muted-foreground mb-4">
                     <span>{car.transmission}</span>
                     <span>•</span>
-                    <span>{car.fuel}</span>
+                    <span>{car.fuel_type}</span>
                     <span>•</span>
                     <span>{car.year}</span>
                   </div>

@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase-server"
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const body = await request.json()
-    const { id } = params
+    const { id } = await params
 
     const { data, error } = await supabase.from("contact_messages").update(body).eq("id", id).select().single()
 
@@ -18,10 +18,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const supabase = createClient()
-    const { id } = params
+    const supabase = await createClient()
+    const { id } = await params
 
     const { error } = await supabase.from("contact_messages").delete().eq("id", id)
 

@@ -19,15 +19,38 @@ export default function ContactoPage() {
   })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Send to database/API
-    console.log("[v0] Contact form submitted:", formData)
-    setSubmitted(true)
-    setTimeout(() => {
-      setSubmitted(false)
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error("Error sending message")
+      }
+
+      setSubmitted(true)
       setFormData({ name: "", email: "", phone: "", message: "" })
-    }, 3000)
+
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setSubmitted(false)
+      }, 3000)
+    } catch (error) {
+      console.error("Error sending message:", error)
+      alert("Hubo un error al enviar el mensaje. Por favor intenta nuevamente.")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -101,10 +124,12 @@ export default function ContactoPage() {
                   type="submit"
                   size="lg"
                   className="w-full bg-gradient-to-r from-pink-500 to-cyan-500 hover:from-pink-600 hover:to-cyan-600"
-                  disabled={submitted}
+                  disabled={submitted || isSubmitting}
                 >
                   {submitted ? (
                     "Mensaje Enviado!"
+                  ) : isSubmitting ? (
+                    "Enviando..."
                   ) : (
                     <>
                       <Send className="mr-2 h-5 w-5" />

@@ -39,7 +39,7 @@ export default function NewCarPage() {
     setError(null)
 
     try {
-      console.log("[v0] Submitting car data:", formData)
+      console.log("Submitting car data:", formData)
 
       const response = await fetch("/api/admin/cars", {
         method: "POST",
@@ -55,11 +55,11 @@ export default function NewCarPage() {
       }
 
       const data = await response.json()
-      console.log("[v0] Car created successfully:", data)
+      console.log("Car created successfully:", data)
 
       router.push("/admin/cars")
     } catch (err: any) {
-      console.error("[v0] Error creating car:", err)
+      console.error("Error creating car:", err)
       setError(err.message)
     } finally {
       setIsLoading(false)

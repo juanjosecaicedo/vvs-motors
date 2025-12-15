@@ -12,13 +12,13 @@ export async function GET() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] Error fetching promotions:", error)
+      console.error("Error fetching promotions:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }

@@ -30,13 +30,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       .single()
 
     if (error) {
-      console.error("[v0] Error updating car:", error)
+      console.error("Error updating car:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json(data)
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
@@ -49,13 +49,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     const { error } = await supabase.from("cars").delete().eq("id", id)
 
     if (error) {
-      console.error("[v0] Error deleting car:", error)
+      console.error("Error deleting car:", error)
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error("[v0] Unexpected error:", error)
+    console.error("Unexpected error:", error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
