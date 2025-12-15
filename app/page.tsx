@@ -168,7 +168,7 @@ export default async function HomePage() {
               <h2 className="text-4xl md:text-5xl font-bold mb-6">Quiénes Somos</h2>
               <p className="text-lg leading-relaxed mb-6 text-gray-100">
                 En VVS Motors creemos que la pasión, la innovación y el conocimiento pueden construir grandes cosas.
-                Somos Juan José Betancourt Cheng y Nicolás Rengifo Posada, dos estudiantes de Ingeniería que en 2024
+                Somos Julio Sebastian Salcedo Aponza, dos estudiantes de Ingeniería que en 2024
                 decidimos transformar una idea universitaria en un proyecto real con impacto.
               </p>
               <p className="text-lg leading-relaxed mb-6 text-gray-100">

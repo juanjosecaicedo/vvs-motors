@@ -94,7 +94,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-gray-800 pt-8 text-center text-gray-400">
           <p>© {new Date().getFullYear()} VVS Motors. Todos los derechos reservados.</p>
-          <p className="mt-2 text-sm">Creado por Juan José Betancourt Cheng y Nicolás Rengifo Posada</p>
+          <p className="mt-2 text-sm">Creado por Julio Sebastian Salcedo Aponza</p>
         </div>
       </div>
     </footer>
