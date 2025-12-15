@@ -1,16 +1,45 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Car, DollarSign, MessageSquare, TrendingUp } from "lucide-react"
+import {useEffect, useState} from "react";
+
+
+type AdminStats = {
+  totalCars: number
+  availableCars: number
+  soldCars: number
+  pendingMessages: number
+  totalRevenue?: number
+}
 
 export default function AdminDashboardPage() {
-  // Sample stats - will be replaced with database queries
-  const stats = {
-    totalCars: 8,
-    availableCars: 8,
-    soldCars: 0,
-    totalRevenue: 328000000,
-    pendingMessages: 5,
-    monthlyGrowth: 12.5,
+  // Fetch real stats from API
+
+
+  const [stats, setStats] = useState<AdminStats>()
+
+  const  fetchStats = async () => {
+    try {
+      const res = await fetch(`/api/admin/stats`, {
+        cache: "no-store",
+        // Ensure absolute URL is optional; empty base works on server in Next.js
+      })
+      if (res.ok) {
+        const data = (await res.json()) as AdminStats
+
+        setStats(data)
+
+      }
+    } catch {
+      // Silently fall back to zeros
+    }
   }
+
+  useEffect(() => {
+    fetchStats()
+  }, []);
+
 
   return (
     <div className="space-y-8">
@@ -27,8 +56,8 @@ export default function AdminDashboardPage() {
             <Car className="h-5 w-5 text-cyan-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.totalCars}</div>
-            <p className="text-xs text-muted-foreground mt-1">{stats.availableCars} disponibles</p>
+            <div className="text-3xl font-bold">{stats?.totalCars}</div>
+            <p className="text-xs text-muted-foreground mt-1">{stats?.availableCars} disponibles</p>
           </CardContent>
         </Card>
 
@@ -38,7 +67,7 @@ export default function AdminDashboardPage() {
             <DollarSign className="h-5 w-5 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">${(stats.totalRevenue / 1000000).toFixed(1)}M</div>
+            <div className="text-3xl font-bold">${(((stats?.totalRevenue ?? 0) as number) / 1_000_000).toFixed(1)}M</div>
             <p className="text-xs text-muted-foreground mt-1">Valor inventario</p>
           </CardContent>
         </Card>
@@ -49,7 +78,7 @@ export default function AdminDashboardPage() {
             <MessageSquare className="h-5 w-5 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats.pendingMessages}</div>
+            <div className="text-3xl font-bold">{stats?.pendingMessages}</div>
             <p className="text-xs text-muted-foreground mt-1">Requieren atención</p>
           </CardContent>
         </Card>
@@ -60,7 +89,7 @@ export default function AdminDashboardPage() {
             <TrendingUp className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">+{stats.monthlyGrowth}%</div>
+            <div className="text-3xl font-bold">N/A</div>
             <p className="text-xs text-muted-foreground mt-1">vs mes anterior</p>
           </CardContent>
         </Card>
@@ -68,73 +97,7 @@ export default function AdminDashboardPage() {
 
       {/* Recent Activity */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Actividad Reciente</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4 p-3 bg-accent/50 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-green-500" />
-                <div className="flex-1">
-                  <p className="font-medium">Nuevo vehículo publicado</p>
-                  <p className="text-sm text-muted-foreground">Tesla Model 3 - Hace 2 horas</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-3 bg-accent/50 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <div className="flex-1">
-                  <p className="font-medium">Mensaje recibido</p>
-                  <p className="text-sm text-muted-foreground">Carlos Rodríguez - Hace 3 horas</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 p-3 bg-accent/50 rounded-lg">
-                <div className="w-2 h-2 rounded-full bg-purple-500" />
-                <div className="flex-1">
-                  <p className="font-medium">Promoción actualizada</p>
-                  <p className="text-sm text-muted-foreground">Financiamiento 0% - Hace 1 día</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Vehículos Más Vistos</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">BMW Serie 3</p>
-                  <p className="text-sm text-muted-foreground">234 visualizaciones</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">$45M</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Mercedes-Benz C-Class</p>
-                  <p className="text-sm text-muted-foreground">198 visualizaciones</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">$55M</p>
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Porsche Macan</p>
-                  <p className="text-sm text-muted-foreground">167 visualizaciones</p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold">$65M</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   )
